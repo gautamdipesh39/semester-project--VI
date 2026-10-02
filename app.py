@@ -20,7 +20,9 @@ load_dotenv(ROOT / '.env')
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'change-this-in-your-env-before-deployment')
 app.config['DATABASE'] = ROOT / 'instance' / 'mediassist.db'
-app.config['DATABASE_URL'] = os.getenv('DATABASE_URL', '')
+# TIDB_DATABASE_URL lets a local developer retain their XAMPP DATABASE_URL while
+# explicitly opting into TiDB Cloud. Render uses DATABASE_URL directly.
+app.config['DATABASE_URL'] = os.getenv('TIDB_DATABASE_URL') or os.getenv('DATABASE_URL', '')
 
 MEDICINES = {
     'Common Cold': ('Supportive care only', 'Rest, fluids and saline nasal rinse. Ask a pharmacist/doctor before medicine.'),
