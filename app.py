@@ -42,14 +42,15 @@ def db():
             connection_args = dict(host=parsed.hostname or '127.0.0.1', port=parsed.port or 3306,
                                    user=parsed.username or 'root', password=parsed.password or '',
                                    charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor, autocommit=False)
-            # XAMPP may not have the database yet, so create it safely on first run.
-            bootstrap = pymysql.connect(**connection_args)
-            try:
-                with bootstrap.cursor() as cursor:
-                    cursor.execute(f'CREATE DATABASE IF NOT EXISTS `{database_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci')
-                bootstrap.commit()
-            finally:
-                bootstrap.close()
+            # Local XAMPP can create a database; hosted Render databases are normally pre-created.
+            if os.getenv('CREATE_DATABASE_ON_STARTUP', '').lower() == 'true':
+                bootstrap = pymysql.connect(**connection_args)
+                try:
+                    with bootstrap.cursor() as cursor:
+                        cursor.execute(f'CREATE DATABASE IF NOT EXISTS `{database_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci')
+                    bootstrap.commit()
+                finally:
+                    bootstrap.close()
             g.db = pymysql.connect(database=database_name, **connection_args)
         else:
             app.config['DATABASE'].parent.mkdir(exist_ok=True)

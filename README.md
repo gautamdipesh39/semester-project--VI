@@ -60,6 +60,8 @@ ADMIN_INITIAL_PASSWORD=a-long-unique-admin-password
 
 `DATABASE_URL` must point to a public hosted MySQL-compatible database. Render cannot connect to XAMPP/MySQL running only on your Mac. Do not add `.env` to GitHub or paste local database credentials into Render build logs.
 
+Create the database in your managed MySQL provider first. Render keeps `CREATE_DATABASE_ON_STARTUP` disabled; this avoids requiring the database user to have global `CREATE DATABASE` permission. For local XAMPP, `.env.example` enables it.
+
 After deploy, open `/health` to verify the web service and then open `/` for the application. The first startup creates required tables and the initial administrator using the Render environment variables.
 
 ## Data
