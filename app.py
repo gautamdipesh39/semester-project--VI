@@ -3,10 +3,11 @@ import os
 import csv
 import sqlite3
 import re
+import ssl
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 from functools import wraps
-from urllib.parse import quote_plus, urlparse
+from urllib.parse import parse_qs, quote_plus, unquote, urlparse
 from flask import Flask, abort, flash, g, redirect, render_template, request, session, url_for
 from dotenv import load_dotenv
 import pymysql
@@ -37,11 +38,16 @@ def db():
         if database_url.startswith('mysql'):
             parsed = urlparse(database_url)
             database_name = parsed.path.lstrip('/') or 'mediassist_ai'
+            query_params = parse_qs(parsed.query)
             if not re.fullmatch(r'[A-Za-z0-9_]+', database_name):
                 raise RuntimeError('DATABASE_URL contains an invalid database name.')
             connection_args = dict(host=parsed.hostname or '127.0.0.1', port=parsed.port or 3306,
-                                   user=parsed.username or 'root', password=parsed.password or '',
+                                   user=unquote(parsed.username or 'root'), password=unquote(parsed.password or ''),
                                    charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor, autocommit=False)
+            ssl_mode = query_params.get('ssl-mode', query_params.get('ssl_mode', ['']))[0].upper()
+            is_tidb = (parsed.hostname or '').endswith('.tidbcloud.com')
+            if os.getenv('DB_SSL', '').lower() == 'true' or is_tidb or ssl_mode in {'REQUIRED', 'VERIFY_CA', 'VERIFY_IDENTITY'}:
+                connection_args['ssl'] = ssl.create_default_context()
             # Local XAMPP can create a database; hosted Render databases are normally pre-created.
             if os.getenv('CREATE_DATABASE_ON_STARTUP', '').lower() == 'true':
                 bootstrap = pymysql.connect(**connection_args)

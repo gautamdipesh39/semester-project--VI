@@ -54,13 +54,14 @@ In Render's Environment settings, add:
 
 ```text
 DATABASE_URL=mysql+pymysql://USER:PASSWORD@HOST:3306/DATABASE_NAME
+DB_SSL=true
 ADMIN_EMAIL=your-admin-email@example.com
 ADMIN_INITIAL_PASSWORD=a-long-unique-admin-password
 ```
 
-`DATABASE_URL` must point to a public hosted MySQL-compatible database. Render cannot connect to XAMPP/MySQL running only on your Mac. Do not add `.env` to GitHub or paste local database credentials into Render build logs.
+`DATABASE_URL` must point to a public hosted MySQL-compatible database. TiDB Cloud is compatible: enter its host, port, database, username and password in the Render `DATABASE_URL`, and keep `DB_SSL=true`. If the password has special characters such as `@`, `:`, or `/`, URL-encode it. Render cannot connect to XAMPP/MySQL running only on your Mac. Do not add `.env` to GitHub or paste local database credentials into Render build logs.
 
-Create the database in your managed MySQL provider first. Render keeps `CREATE_DATABASE_ON_STARTUP` disabled; this avoids requiring the database user to have global `CREATE DATABASE` permission. For local XAMPP, `.env.example` enables it.
+Create the database in TiDB Cloud (or your managed MySQL provider) first. Render keeps `CREATE_DATABASE_ON_STARTUP` disabled; this avoids requiring the database user to have global `CREATE DATABASE` permission. Keep your local XAMPP `DATABASE_URL` unchanged in `.env`; it is separate from Render's environment variables.
 
 After deploy, open `/health` to verify the web service and then open `/` for the application. The first startup creates required tables and the initial administrator using the Render environment variables.
 

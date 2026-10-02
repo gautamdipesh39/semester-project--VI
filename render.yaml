@@ -13,6 +13,8 @@ services:
         generateValue: true
       - key: DATABASE_URL
         sync: false
+      - key: DB_SSL
+        value: "true"
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_INITIAL_PASSWORD
