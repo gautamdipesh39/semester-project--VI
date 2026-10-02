@@ -8,6 +8,7 @@ from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 from functools import wraps
 from urllib.parse import parse_qs, quote_plus, unquote, urlparse
+import certifi
 from flask import Flask, abort, flash, g, redirect, render_template, request, session, url_for
 from dotenv import load_dotenv
 import pymysql
@@ -47,7 +48,7 @@ def db():
             ssl_mode = query_params.get('ssl-mode', query_params.get('ssl_mode', ['']))[0].upper()
             is_tidb = (parsed.hostname or '').endswith('.tidbcloud.com')
             if os.getenv('DB_SSL', '').lower() == 'true' or is_tidb or ssl_mode in {'REQUIRED', 'VERIFY_CA', 'VERIFY_IDENTITY'}:
-                connection_args['ssl'] = ssl.create_default_context()
+                connection_args['ssl'] = ssl.create_default_context(cafile=certifi.where())
             # Local XAMPP can create a database; hosted Render databases are normally pre-created.
             if os.getenv('CREATE_DATABASE_ON_STARTUP', '').lower() == 'true':
                 bootstrap = pymysql.connect(**connection_args)
