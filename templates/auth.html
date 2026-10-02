@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="auth card">
+  <p class="eyebrow">WELCOME TO MEDIASSIST</p>
+  <h1>{{ 'Create your patient account' if mode == 'register' else 'Welcome back' }}</h1>
+  <p class="muted">{% if mode == 'register' %}Start with the essentials. You can securely add optional health details after signing in.{% else %}Sign in to access your private health dashboard.{% endif %}</p>
+  <form method="post">
+    {% if mode == 'register' %}
+    <label>Full name<input name="name" autocomplete="name" required></label>
+    <input type="hidden" name="role" value="patient">
+    {% endif %}
+    <label>Email address<input name="email" type="email" autocomplete="email" required></label>
+    <label>Password<div class="password-field"><input id="password" name="password" type="password" autocomplete="{{ 'new-password' if mode == 'register' else 'current-password' }}" minlength="8" required><button class="show-password" type="button" aria-controls="password">Show</button></div><small>Use at least 8 characters.</small></label>
+    <button class="button" type="submit">{{ 'Create patient account' if mode == 'register' else 'Sign in' }}</button>
+  </form>
+  <p>{% if mode == 'register' %}Already registered? <a href="{{ url_for('login') }}">Sign in</a>{% else %}New here? <a href="{{ url_for('register') }}">Create a patient account</a>{% endif %}</p>
+</section>
+<script>document.querySelector('.show-password')?.addEventListener('click',function(){const input=document.getElementById('password');const isHidden=input.type==='password';input.type=isHidden?'text':'password';this.textContent=isHidden?'Hide':'Show';});</script>
+{% endblock %}

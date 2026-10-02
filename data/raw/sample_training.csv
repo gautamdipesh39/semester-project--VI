@@ -1,0 +1,13 @@
+disease,symptom_1,symptom_2,symptom_3
+Common Cold,cough,sneezing,runny_nose
+Common Cold,sore_throat,cough,runny_nose
+Influenza,fever,body_ache,fatigue
+Influenza,fever,cough,chills
+Migraine,headache,nausea,sensitivity_to_light
+Migraine,headache,dizziness,sensitivity_to_light
+Gastroenteritis,nausea,vomiting,diarrhea
+Gastroenteritis,stomach_pain,diarrhea,nausea
+Allergic Reaction,skin_rash,itching,sneezing
+Allergic Reaction,swelling,skin_rash,itching
+Heart Concern,chest_pain,shortness_of_breath,dizziness
+Heart Concern,chest_pain,irregular_heartbeat,fatigue
