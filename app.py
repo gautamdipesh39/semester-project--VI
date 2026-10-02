@@ -107,8 +107,10 @@ def initialize_db():
             if name not in record_columns:
                 con.execute(f'ALTER TABLE health_records ADD COLUMN {name} {definition}')
     create_catalog_tables()
-    if not query('SELECT 1 FROM users WHERE email = ?', ('admin@mediassist.local',)).fetchone():
-        query('INSERT INTO users (full_name,age,email,password_hash,role) VALUES (?,?,?,?,?)', ('System Administrator', None, 'admin@mediassist.local',generate_password_hash('ChangeMe123!'),'admin'))
+    admin_email = os.getenv('ADMIN_EMAIL', 'admin@mediassist.local').lower()
+    admin_password = os.getenv('ADMIN_INITIAL_PASSWORD', 'ChangeMe123!')
+    if not query('SELECT 1 FROM users WHERE email = ?', (admin_email,)).fetchone():
+        query('INSERT INTO users (full_name,age,email,password_hash,role) VALUES (?,?,?,?,?)', ('System Administrator', None, admin_email, generate_password_hash(admin_password), 'admin'))
     con.commit()
     seed_catalog_if_empty()
     seed_verified_directory_if_empty()
@@ -244,6 +246,11 @@ def inject_user(): return {'user': current_user()}
 
 @app.route('/')
 def index(): return render_template('landing.html')
+
+@app.get('/health')
+def health():
+    """Lightweight Render health check that does not expose user or database data."""
+    return {'status': 'ok'}, 200
 
 @app.route('/register', methods=['GET','POST'])
 def register():
@@ -486,8 +493,10 @@ def admin_delete(kind, record_id):
     db().commit(); flash(f'{kind.title()} deleted permanently.', 'success')
     return redirect(url_for('admin_catalog'))
 
+with app.app_context():
+    initialize_db()
+
 if __name__ == '__main__':
-    with app.app_context(): initialize_db()
     # Keep debug disabled by default; set FLASK_DEBUG=true in .env only while developing.
     # macOS Control Center commonly reserves port 5000, so this project uses 5050 by default.
     app.run(host='127.0.0.1', port=int(os.getenv('PORT', '5050')), debug=os.getenv('FLASK_DEBUG', '').lower() == 'true')

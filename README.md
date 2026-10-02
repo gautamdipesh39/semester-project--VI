@@ -46,6 +46,22 @@ On first startup, the application imports the supplied `Dataset/Specialist_Recom
 
 As an administrator, open **Manage directory** from the navigation to add doctors, hospitals, and specialties or deactivate an existing doctor/hospital. Patient analysis results use the disease mapping to show matching doctors and hospitals. A matching doctor must have a `doctor_profiles` entry; create it from **Manage directory** or have the doctor choose a specialization during registration.
 
+## Deploying on Render
+
+This repository includes `render.yaml` and starts with Gunicorn. Push the project to GitHub, then create a new **Blueprint** service in Render and select the repository.
+
+In Render's Environment settings, add:
+
+```text
+DATABASE_URL=mysql+pymysql://USER:PASSWORD@HOST:3306/DATABASE_NAME
+ADMIN_EMAIL=your-admin-email@example.com
+ADMIN_INITIAL_PASSWORD=a-long-unique-admin-password
+```
+
+`DATABASE_URL` must point to a public hosted MySQL-compatible database. Render cannot connect to XAMPP/MySQL running only on your Mac. Do not add `.env` to GitHub or paste local database credentials into Render build logs.
+
+After deploy, open `/health` to verify the web service and then open `/` for the application. The first startup creates required tables and the initial administrator using the Render environment variables.
+
 ## Data
 
 Place CSVs in `data/raw/` and run `python scripts/clean_data.py`. Expected prediction columns are `disease` (or `prognosis`) and symptoms such as `symptom_1`, `symptom_2` or binary symptom columns. The supplied Excel files in `Dataset/` are also read where valid. The script normalizes names, removes duplicates/empty rows, and writes `data/cleaned/disease_training.csv`.
